@@ -1,0 +1,112 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>检测报告</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .person-info,
+        .brain-img,
+        .brain-info {
+            width: 960px;
+        }
+
+        .brain-img {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>脑影像分析报告</h1>
+    <div class="person-info">
+        <table class="table table-hover">
+            <thead bgcolor="#ffba27">
+            <tr>
+                <th colspan="6" scope="col">个人信息</th>
+            </tr>
+            </thead>
+            <thead>
+            <tr>
+                <th scope="col">编号</th>
+                <th scope="col">姓名</th>
+                <th scope="col">性别</th>
+                <th scope="col">年龄</th>
+                <th scope="col">扫描时间</th>
+                <th scope="col">医院</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">2803********</th>
+                <td>2803680006</td>
+                <td>男</td>
+                <td>73</td>
+                <td>2016/12/20</td>
+                <td>OPUS Magnetic Imaging Centre</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="brain-img">
+        <table class="table table-hover" style="margin-bottom: 0">
+            <thead bgcolor="#ffba27">
+            <tr>
+                <th colspan="6" scope="col">脑区标记</th>
+            </tr>
+            </thead>
+        </table>
+        <div class="img bg-dark">
+            <div class="row">
+                {% for img in purl %}
+                <div class="col-md-4"><img src="{% static img %}" width="300px"
+                                           height="300px"/></div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="brain-info">
+        <table class="table table-hover">
+            <thead bgcolor="#ffba27">
+            <tr>
+                <th colspan="6" scope="col">整体脑容积</th>
+            </tr>
+            </thead>
+            <thead>
+            <tr>
+                <th scope="col">脑组织</th>
+                <th scope="col">绝对体积（毫升）</th>
+                <th scope="col">相对体积（% of ICV）</th>
+                <th scope="col">百分位（1）</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in data %}
+            <tr>
+                <th scope="row">{{ item.name }}</th>
+                <td>{{ item.absolute }}</td>
+                <td>{{ item.relative }}</td>
+                <td>{{ item.percent }}</td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+        <p>(1)百分位值小可能显示脑萎缩</p>
+    </div>
+
+
+</div>
+</body>
+</html>

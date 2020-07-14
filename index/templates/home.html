@@ -1,0 +1,98 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<!-- Head -->
+<head>
+
+    <title>home</title>
+
+    <!-- Meta-Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.css" %}" type="text/css" media="all">
+    <link rel="stylesheet" href="{% static "bootstrap/need/laydate.css" %}" type="text/css" media="all">
+    <script src="{% static 'bootstrap/laydate.js' %}"></script>
+    <script>
+
+    </script>
+</head>
+<!-- //Head -->
+<!-- Body -->
+<body>
+<center>Welcome! <span>您已登录系统，欢迎您：{{ request.session.username }}</span></center>
+<a class="btn btn-info" href="/logout">注销登录</a>
+<a class="btn btn-warning" href="/updatePwd">修改密码</a>
+{% csrf_token %}
+<a class="btn btn-success" style="height: 35px;line-height: 35px;" href="javascript:;"><input id="filename" name="video" style="opacity: 0;width: 80px;height: 30px;padding: 0px;" onchange="upload_video(this)" type="file" class="file-upload" name="filename" value=""><span style="position: relative;top:-35px;">添加图片</span></a>
+<br/>
+<br/>
+<form active="/home" method="post">
+开始时间<input value="{{ starttime }}" id="starttime" name="starttime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+结束时间<input value="{{ endtime }}" id="endtime" name="endtime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+<input type="submit" value="搜索">
+</form>
+<table class="table">
+<caption>图片列表展示</caption>
+<thead>
+<tr>
+<th>序号</th>
+<th>文件名</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+{% for image in imageArr %}
+<tr>
+<td>{{ image.id }}</td>
+    <td><a href="index?filename={{ image.filename }}">{{ image.filename }}</a></td>
+<td>{{ image.addtime|date:'Y-m-d H:i:s' }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+    <script src="{% static 'bootstrap/jquery/jquery-3.2.1.min.js' %}"></script>
+<script>
+    function upload_video() {
+        var fileName = $('#filename').val().split('\\');
+		var fileSize =  document.getElementById('filename').files[0]; //获得文件大小；
+		fileName2 = fileName[fileName.length-1]; // 获得文件名
+		filePath = $('#filename').val().toLowerCase().split(".");
+		fileType =  filePath[filePath.length - 1];
+		var str = 'nii';
+		if(str.indexOf(fileType) == -1){
+			alert('文件支持nii格式！')
+		}else if(fileSize.size>50485760){
+			alert('视频大小不超过50M！')
+		}
+		var csrf = $('#csrf').val();
+		var formData = new FormData();
+		formData.append('filename', fileSize);
+		formData.append('csrfmiddlewaretoken', csrf);
+        $.ajax({
+			url: "/uploadfile",
+			data: formData,
+			type: "Post",
+			dataType: "json",
+			cache: false,//上传文件无需缓存
+			processData: false,//用于对data参数进行序列化处理 这里必须false
+			contentType: false, //必须
+			success: function (result) {
+				if(result == 1){
+				    alert('上传成功')
+                    location.reload();
+				}else if(result == 2){
+				    alert('文件已存在')
+                }else{
+				    alert('上传失败')
+				}
+			}
+		})
+
+    }
+
+</script>
+
+</body>
+</html>

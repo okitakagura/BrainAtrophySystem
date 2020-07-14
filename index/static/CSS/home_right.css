@@ -1,0 +1,22 @@
+#right_top{
+    color: white;
+    background-color: rgb(99, 99, 99);
+    width: auto;
+    height: 50px;
+    border-bottom: 2px solid white;
+    border-top: 4px solid white;
+}
+#right_middle{
+    color: white;
+    width: auto;
+    height: 245px;
+    border-bottom: 2px solid white;
+    border-top: 2px solid white;
+}
+#right_bottom{
+    color: white;
+    width: auto;
+    height: 245px;
+    border-bottom: 4px solid white;
+    border-top: 2px solid white;
+}

@@ -1,0 +1,726 @@
+{% include 'header/header.html' %}
+{% load static %}
+
+
+<div class="home">
+    <div class="div-inline left" style="margin-left: 10px;">
+
+        <h1 class="font-color" style="margin-top: 0px;">
+            脑萎缩检测
+        </h1>
+
+
+        <select id="mhd" onclick="selectMhd()" class="button button-rounded button-small"
+                style="margin-bottom: 10px; width: 95.5%; font-size: medium;">
+            {#            <option value="1.3.6.1.4.1.14519.5.2.1.6279.6001.100225287222365663678666836860.mhd">example.0-6860</option>#}
+            {#            <option value="1.3.6.1.4.1.14519.5.2.1.6279.6001.100621383016233746780170740405.mhd">example.1-0405</option>#}
+            {#            <option value="1.3.6.1.4.1.14519.5.2.1.6279.6001.102133688497886810253331438797.mhd">example.2-8797</option>#}
+            {#            <option value="1.3.6.1.4.1.14519.5.2.1.6279.6001.102133688497886810253331438797.mhd">example.2-8797</option>#}
+            {#            <option value="sub_001_brain_FLIRT.mhd">sub_001_brain_FLIRT</option>#}
+            {#            <option value="sub_002_brain_FLIRT.mhd">sub_002_brain_FLIRT</option>#}
+{#
+            {% for image in ImageArr %}
+                <option {% if filenames == image.filename %} selected {% endif %}value="{{ image.filename }}.mhd">{{ image.filename }}</option>
+            {% endfor %}
+        </select>
+
+        <br>
+
+        <button onclick="loaddata()" class="button button-rounded button-small" style="font-size: medium;">
+            {#            <img src="" alt="">#}
+            加载
+        </button>
+        <button onclick="refreshImg()" class="button button-rounded button-small" style="font-size: medium;"> 刷新
+        </button>
+
+        <h2 style="margin-top: 10px; ">步骤向导</h2>
+
+        <ul style="padding-left: 0px; ">
+            <li>步骤一：加载MRI图像</li>
+            <hr style="border: 0; border-top:2px dashed gray;"/>
+            <li>步骤二：系统识别诊断</li>
+            <hr style="border: 0; border-top:2px dashed gray;"/>
+            <li>步骤三：医生诊断并打印病例报告</li>
+            <hr style="border: 0; border-top:2px dashed gray;"/>
+        </ul>
+
+        <div style="height: 1px;"></div>
+
+        <h2>脑萎缩信息</h2>
+        <table class="table" cellspacing="0" style=" text-align: left; width: 100%">
+            <thead>
+            <tr>
+                <th class="table-head">脑组织</th>
+                <th class="table-head">绝对体积</th>
+                <th class="table-head">相对体积</th>
+                <th class="table-head">百分位</th>
+            </tr>
+            </thead>
+        </table>
+
+        <div style="height: 200px;">
+            <table id="brain-info" class="table" cellspacing="0" cellpadding="0"
+                   style="text-align: left; width: 100%; border-spacing:0px 3px;">
+                <thead>
+                <tr>
+                    <th class="table-head"></th>
+                    <th class="table-head"></th>
+                    <th class="table-head"></th>
+                    <th class="table-head"></th>
+                </tr>
+                </thead>
+                <tbody id="tb">
+                {% for foo in nodules %}
+                    <tr class="default-cursor" onclick="getNodulesImage(this)" onmouseover="changeColor(this)"
+                        onmouseleave="resetColor(this)">
+                        <td>{{ foo.id }}</td>
+                        <td>{{ foo.z }} </td>
+                        <td>{{ foo.y }} </td>
+                        <td>{{ foo.x }} </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="oprat" style="">
+            <button class="button button-roundedr" onclick="ai()">诊断</button>
+            <button onclick="toPrint()" class="button button-roundedr">报告</button>
+        </div>
+    </div>
+
+
+    <div class="div-inline middle">
+        <div class="img-block" id="ct-block">
+            <span class="img-info-top" id="slice">se: 0</span>
+         
+
+            <span class="img-info-bot-x" id="mouse-x"></span>
+            <span class="img-info-bot-y" id="mouse-y"></span>
+        </div>
+
+        <div>
+{#                        <input id="se-input" type="number" onchange="changeImg(this.value)" style="margin-top: 20px;">#}
+        </div>
+    </div>
+
+
+    <div class="div-inline right">
+        <div class="img-small-block-field">
+            <div class="img-block-small">
+                <div style="text-align: center">
+                    <img id="ct-img-x" class="img-small" src="" alt="" onmousemove="getCoordinatesX()" src="" alt=""
+                         onmouseleave="hideCoordinatesX()">
+                </div>
+
+                <span class="img-info-top" id="slice-x">se: 0</span>
+                <span class="img-info-bot-x" id="mouse-x-x"></span>
+                <span class="img-info-bot-y" id="mouse-x-y"></span>
+            </div>
+        </div>
+        {#        <hr style="border: 0; border-top:2px dashed gray; margin-top: 50%; margin-bottom: 50%"/>#}
+
+        <div class="img-small-block-field">
+            <div class="img-block-small">
+                <div style="text-align: center">
+                    <img id="ct-img-y" class="img-small" src="" alt="" onmousemove="getCoordinatesY()" src="" alt=""
+                         onmouseleave="hideCoordinatesY()">
+                </div>
+
+
+                <span class="img-info-top" id="slice-y">se: 0</span>
+                <span class="img-info-bot-x" id="mouse-y-x"></span>
+                <span class="img-info-bot-y" id="mouse-y-y"></span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{#所有关于canvas的#}
+<script>
+    var is_init = true;
+    var num = 0;
+    var img_field;
+    var now_is_img = false;
+
+    var mid_img;
+
+    var canvas;
+    var ctx;
+
+    var draw_flag = false;
+    var begin_flag = false;
+    // 起始位置
+    var x = 0;
+    var y = 0;
+
+    var bbox;
+    var alpha;
+
+    // 操作列表
+    var recOp;
+
+
+    function drawRect(e) {
+        if (draw_flag) {
+            if (begin_flag) {
+                begin_flag = false;
+            } else {
+                popOp();
+            }
+
+            refreshCanvas();
+            ctx.strokeStyle = "#ff0000";
+            ctx.beginPath();
+            ctx.strokeRect(x, y, (e.offsetX * alpha - x), (e.offsetY * alpha - y));
+            pushOp(x, y, (e.offsetX * alpha - x), (e.offsetY * alpha - y));
+        }
+    }
+
+
+    function pushOp(x, y, w, h) {
+        recOp.push(new Array(x, y, w, h));
+    }
+
+    function refreshCanvas() {
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(mid_img, 0, 0);
+        for (var i = 0; i < recOp.length; i++) {
+            var xx = recOp[i];
+            ctx.strokeStyle = "#ff0000";
+            ctx.beginPath();
+            ctx.strokeRect(xx[0], xx[1], xx[2], xx[3]);
+        }
+    }
+
+    function popOp() {
+        recOp.pop();
+    }
+
+    function repImage(img) {
+
+    }
+
+    function ai() {
+        document.getElementById("brain-info").style.visibility = "visible";
+    }
+
+    function toPrint() {
+        let data = document.getElementById('mhd').value
+        window.location.href="/print?data=" + data.slice(0,19);
+    }
+
+</script>
+
+{#canvas and image init#}
+<script>
+    function canvasInit() {
+        if (!now_is_img) {
+            return;
+        }
+        now_is_img = false;
+        // 生成canvas
+        canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        canvas.style = "width: 100%; height: auto;";
+        canvas.id = "ct-canvas";
+
+        document.getElementById('ct-block').appendChild(canvas);
+
+        canvas.setAttribute("onmousemove", "getCoordinatesFromCanvas()");
+        canvas.setAttribute("onmouseleave", "hideCoordinates()");
+
+
+        mid_img = new Image();
+        mid_img.src = img_field.src;
+
+        document.getElementById('ct-block').removeChild(img_field);
+
+        ctx = canvas.getContext("2d");
+        draw_flag = false;
+        begin_flag = false;
+        // 起始位置
+        x = 0;
+        y = 0;
+        bbox = canvas.getBoundingClientRect();
+        alpha = canvas.width / bbox.width;
+        recOp = new Array();
+
+        canvas.addEventListener('mousedown', function (e) {
+            draw_flag = true;
+            begin_flag = true;
+            x = e.offsetX * alpha; // 鼠标落下时的X
+            y = e.offsetY * alpha; // 鼠标落下时的Y
+        }, false);
+
+        canvas.addEventListener('mouseup', function (e) {
+            draw_flag = false;
+        }, false);
+
+        canvas.addEventListener('mousemove', function (e) {
+            // switch
+            drawRect(e); // 绘制方法
+        }, false);
+        refreshCanvas();
+
+        var mouseWheel = canvas;
+
+        if (mouseWheel.addEventListener) {
+
+            mouseWheel.addEventListener('DOMMouseScroll', function (event) {
+                event.target.innerHTML = event.detail;
+                event.stopPropagation();
+                event.preventDefault();
+
+            }, false);
+        }
+        mouseWheel.onmousewheel = function (event) {
+
+            event = event || window.event;
+            mouseWheel.innerHTML = event.wheelDelta.toString();
+            event.returnValue = false;
+
+
+            // 滚轮，滑动。
+            if (event.wheelDelta > 0) {
+                changeImg(num + 1);
+            } else if (event.wheelDelta < 0) {
+                changeImg(num - 1);
+            }
+        }
+    }
+
+    function imageInit() {
+        if (now_is_img) {
+            return;
+        }
+        now_is_img = true;
+        if (!is_init) {
+            document.getElementById('ct-block').removeChild(canvas);
+        } else {
+            is_init = false;
+        }
+
+        img_field = new Image();
+        img_field.src = mid_img.src;
+        img_field.id = "ct-img";
+        img_field.className = "img";
+        img_field.style.width = "500px";
+        img_field.style.height = "500px";
+        img_field.style.margin = "200px";
+        img_field.setAttribute("onmousemove", "getCoordinates()");
+        img_field.setAttribute("onmouseleave", "hideCoordinates()");
+        document.getElementById('ct-block').appendChild(img_field);
+
+        var mouseWheel = document.getElementById('ct-img');
+
+        if (mouseWheel.addEventListener) {
+            mouseWheel.addEventListener('DOMMouseScroll', function (event) {
+                event.target.innerHTML = event.detail;
+                event.stopPropagation();
+                event.preventDefault();
+            }, false);
+        }
+
+        mouseWheel.onmousewheel = function (event) {
+            event = event || window.event;
+            mouseWheel.innerHTML = event.wheelDelta.toString();
+            event.returnValue = false;
+            // 滚轮，滑动
+            if (event.wheelDelta > 0) {
+                changeImg(num + 1);
+            } else if (event.wheelDelta < 0) {
+                changeImg(num - 1);
+            }
+        }
+    }
+</script>
+
+<script>
+    function changeImg(cnt) {
+        if (!now_is_img) {
+            imageInit();
+        }
+
+        var img = document.getElementById("ct-img");
+        var xmlhttp;
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {// code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var jsontext = xmlhttp.response;
+                var path = JSON.parse(jsontext)['path'];
+
+                if (typeof (path) != "undefined") {
+                    path = "{% static "" %}" + path;
+                    img.src = path;
+                    document.getElementById('slice').innerHTML = "se: " + cnt;
+                    num = parseInt(cnt);
+                }
+            }
+        };
+
+        xmlhttp.open("GET", "/ajax_dict?cnt=" + cnt + "&value=" + document.getElementById('mhd').value + "&ca=0", true);
+        xmlhttp.send();
+    }
+</script>
+
+<script>
+
+    function getCoordinatesFromCanvas() {
+        var xinfo = document.getElementById('mouse-x');
+        var yinfo = document.getElementById('mouse-y');
+
+        var x = event.clientX - document.getElementById('ct-canvas').getBoundingClientRect().left;
+        var y = event.clientY - document.getElementById('ct-canvas').getBoundingClientRect().top;
+
+        x = x / document.getElementById('ct-canvas').getBoundingClientRect().width * 512;
+        y = y / document.getElementById('ct-canvas').getBoundingClientRect().width * 512;
+
+
+        xinfo.innerHTML = "x: " + Math.ceil(x);
+        yinfo.innerHTML = "y: " + Math.ceil(y);
+    }
+
+    function getCoordinates() {
+        var xinfo = document.getElementById('mouse-x');
+        var yinfo = document.getElementById('mouse-y');
+
+        var x = event.clientX - document.getElementById('ct-img').getBoundingClientRect().left;
+        var y = event.clientY - document.getElementById('ct-img').getBoundingClientRect().top;
+
+        x = x / document.getElementById('ct-img').getBoundingClientRect().width * 512;
+        y = y / document.getElementById('ct-img').getBoundingClientRect().width * 512;
+
+        xinfo.innerHTML = "x: " + Math.ceil(x);
+        yinfo.innerHTML = "y: " + Math.ceil(y);
+    }
+
+    function getCoordinatesX() {
+        var xinfo = document.getElementById('mouse-x-x');
+        var yinfo = document.getElementById('mouse-x-y');
+
+        var x = event.clientX - document.getElementById('ct-img-x').getBoundingClientRect().left;
+        var y = event.clientY - document.getElementById('ct-img-x').getBoundingClientRect().top;
+
+        x = x / document.getElementById('ct-img-x').getBoundingClientRect().width * 512;
+        y = y / document.getElementById('ct-img-x').getBoundingClientRect().width * 512;
+
+        xinfo.innerHTML = "y: " + Math.ceil(x);
+        yinfo.innerHTML = "z: " + Math.ceil(y);
+    }
+
+    function getCoordinatesY() {
+        var xinfo = document.getElementById('mouse-y-x');
+        var yinfo = document.getElementById('mouse-y-y');
+
+        var x = event.clientX - document.getElementById('ct-img-y').getBoundingClientRect().left;
+        var y = event.clientY - document.getElementById('ct-img-y').getBoundingClientRect().top;
+
+        x = x / document.getElementById('ct-img-y').getBoundingClientRect().width * 512;
+        y = y / document.getElementById('ct-img-y').getBoundingClientRect().width * 512;
+
+        xinfo.innerHTML = "z: " + Math.ceil(x);
+        yinfo.innerHTML = "x: " + Math.ceil(y);
+    }
+
+    function changeImgX(cnt) {
+        var img = document.getElementById("ct-img-x");
+
+        var xmlhttp;
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {// code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                var jsontext = xmlhttp.response;
+                var path = JSON.parse(jsontext)['path'];
+
+                if (typeof (path) != "undefined") {
+                    path = "{% static "" %}" + path;
+                    img.src = path;
+                    document.getElementById('slice-x').innerHTML = "se: " + cnt;
+                    num_x = parseInt(cnt);
+                } else {
+                }
+            }
+        };
+        // TODO
+        // 请求图片路径
+        xmlhttp.open("GET", "/ajax_dict?cnt=" + cnt + "&value=" + document.getElementById('mhd').value + "&ca=1", true);
+        xmlhttp.send();
+    }
+
+    function changeImgY(cnt) {
+        var img = document.getElementById("ct-img-y");
+
+        var xmlhttp;
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {// code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                var jsontext = xmlhttp.response;
+                var path = JSON.parse(jsontext)['path'];
+
+                if (typeof (path) != "undefined") {
+                    path = "{% static "" %}" + path;
+                    img.src = path;
+                    document.getElementById('slice-y').innerHTML = "se: " + cnt;
+                    num_y = parseInt(cnt);
+                } else {
+                }
+            }
+        };
+        // TODO
+        // 请求图片路径
+        xmlhttp.open("GET", "/ajax_dict?cnt=" + cnt + "&value=" + document.getElementById('mhd').value + "&ca=2", true);
+        xmlhttp.send();
+    }
+
+    function getNodulesImage(obj) {
+        var cntZ = obj.cells[1].innerHTML; //图片编号
+        var cntX = obj.cells[2].innerHTML; //图片编号
+        var cntY = obj.cells[3].innerHTML; //图片编号
+
+        changeImg(cntZ);
+        changeImgX(cntX);
+        changeImgY(cntY);
+    }
+
+    function changeColor(obj) {
+        {#        obj.style.color = "gray";#}
+        obj.style.backgroundColor = "gray";
+
+    }
+
+    function resetColor(obj) {
+        {#        obj.style.color = "white";#}
+        obj.style.backgroundColor = "black";
+    }
+
+    function loaddata() {
+        var xmlhttp;
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {// code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            }
+        };
+
+        // 请求生成图片
+        // 把mhd文件名传进去，加载指定的mhd文件
+        xmlhttp.open("GET", "/load_img?src=" + document.getElementById('mhd').value, true);
+        xmlhttp.send();
+
+        document.getElementById('ct-img').src = "";
+        changeImg(15);
+        changeImgX(15);
+        changeImgY(15);
+
+        // TODO
+        // 请求生成的信息
+        loadnodules();
+        document.getElementById("brain-info").style.visibility = "hidden";
+    }
+
+    function loadnodules() {
+        var xmlhttp;
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {// code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementById('tb').innerHTML = "";
+                var jsontext = xmlhttp.response;
+                var nodules = JSON.parse(jsontext)['nodules'];
+                for (var i = 0; i < nodules.length; i++) {
+                    addNodulesList(nodules[i]['name'], nodules[i]['x'], nodules[i]['y'], nodules[i]['z']);
+                }
+            }
+        };
+        // TODO
+        // 请求图片路径
+        xmlhttp.open("GET", "/load_nodules?src=" + document.getElementById('mhd').value, true);
+        xmlhttp.send();
+    }
+
+    function addNodulesList(nid, x, y, z) {
+        var item = document.createElement('tr');
+
+        var id = document.createElement('td');
+        id.innerHTML = nid;
+
+        var cox = document.createElement('td');
+        cox.innerHTML = x;
+
+        var coy = document.createElement('td');
+        coy.innerHTML = y;
+
+        var coz = document.createElement('td');
+        coz.innerHTML = z;
+
+        item.appendChild(id);
+        item.appendChild(coz);
+        item.appendChild(cox);
+        item.appendChild(coy);
+
+        item.className = 'default-cursor';
+        {#item.setAttribute('onclick', 'getNodulesImage(this)');#}
+        item.setAttribute('onmouseover', 'changeColor(this)');
+        item.setAttribute('onmouseleave', 'resetColor(this)');
+
+        document.getElementById('tb').appendChild(item);
+    }
+
+    function hideCoordinates() {
+        var xinfo = document.getElementById('mouse-x');
+        var yinfo = document.getElementById('mouse-y');
+        xinfo.innerHTML = "";
+        yinfo.innerHTML = "";
+    }
+
+    function hideCoordinatesX() {
+        var xinfo = document.getElementById('mouse-x-x');
+        var yinfo = document.getElementById('mouse-x-y');
+        xinfo.innerHTML = "";
+        yinfo.innerHTML = "";
+    }
+
+    function hideCoordinatesY() {
+        var xinfo = document.getElementById('mouse-y-x');
+        var yinfo = document.getElementById('mouse-y-y');
+        xinfo.innerHTML = "";
+        yinfo.innerHTML = "";
+    }
+
+    function refreshImg() {
+        changeImg(0);
+        changeImgX(0);
+        changeImgY(0);
+    }
+</script>
+
+{#x,y滚轮监听#}
+<script>
+    var mouseWheely = document.getElementById('ct-img-y');
+
+    if (mouseWheely.addEventListener) {
+        mouseWheely.addEventListener('DOMMouseScroll', function (event) {
+            event.target.innerHTML = event.detail;
+            event.stopPropagation();
+            event.preventDefault();
+        }, false);
+    }
+
+    mouseWheely.onmousewheel = function (event) {
+        event = event || window.event;
+        mouseWheely.innerHTML = event.wheelDelta.toString();
+        event.returnValue = false;
+        // 滚轮，滑动
+        if (event.wheelDelta > 0) {
+            changeImgY(num_y + 1);
+        } else if (event.wheelDelta < 0) {
+            changeImgY(num_y - 1);
+        }
+    }
+
+    var mouseWheelx = document.getElementById('ct-img-x');
+
+    if (mouseWheelx.addEventListener) {
+        mouseWheelx.addEventListener('DOMMouseScroll', function (event) {
+            event.target.innerHTML = event.detail;
+            event.stopPropagation();
+            event.preventDefault();
+        }, false);
+    }
+
+    mouseWheelx.onmousewheel = function (event) {
+        event = event || window.event;
+        mouseWheelx.innerHTML = event.wheelDelta.toString();
+        event.returnValue = false;
+        // 滚轮，滑动
+        if (event.wheelDelta > 0) {
+            changeImgX(num_x + 1);
+        } else if (event.wheelDelta < 0) {
+            changeImgX(num_x - 1);
+        }
+    }
+</script>
+
+
+<script>
+    function showseg() {
+        var mhdf = document.getElementById('mhd').value
+        var len = mhdf.length;
+        mhdf[len - 2] = "a";
+        mhdf = mhdf.substring(0, len - 4);
+        var src = {% static "" %} +"img/" + mhdf + "/seg/ct_" + num + ".png";
+        if (now_is_img) {
+            document.getElementById('ct-img').src = src;
+        } else {
+            imageInit();
+            document.getElementById('ct-img').src = src;
+        }
+        {#alert(src);#}
+    }
+</script>
+
+{#init#}
+<script>
+    window.onload = init;
+
+    function init() {
+        document.getElementById("brain-info").style.visibility = "hidden";
+
+        mid_img = new Image();
+        mid_img.src = {% static "" %} +"image/ct_1.png";
+        imageInit();
+        now_is_img = true;
+        loaddata();
+
+        document.getElementById("scroll").style.overflow = "hidden";
+        loaddata();
+        document.onkeydown = function (event) {
+            var e = event
+            if (e && e.keyCode == 37) {
+                changeImg(num - 1);
+
+            }
+            if (e && e.keyCode == 39) {
+                changeImg(num + 1);
+            }
+            if (e && e.keyCode == 38) {
+                changeImg(num - 1);
+
+            }
+            if (e && e.keyCode == 40) {
+                changeImg(num + 1);
+            }
+        }
+    }
+</script>
+
+
+{% include 'footer/footer.html' %}
