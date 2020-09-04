@@ -4,7 +4,7 @@ from matplotlib import pylab as plt
 import nibabel as nib
 from nibabel.viewers import OrthoSlicer3D
 
-file = 'nii\sub_002_brain_FLIRT.nii'  # 你的nii或者nii.gz文件路径
+file = 'nii/sub_002_brain_FLIRT.nii'  # 你的nii或者nii.gz文件路径
 img = nib.load(file)
 
 print(img)

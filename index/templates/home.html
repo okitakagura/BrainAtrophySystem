@@ -1,98 +1,191 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html>
-
 <!-- Head -->
 <head>
-
     <title>home</title>
-
     <!-- Meta-Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.css" %}" type="text/css" media="all">
     <link rel="stylesheet" href="{% static "bootstrap/need/laydate.css" %}" type="text/css" media="all">
     <script src="{% static 'bootstrap/laydate.js' %}"></script>
-    <script>
-
-    </script>
+    <script></script>
+    <style type="text/css">
+        .navbar-form
+        {
+            padding-top: 15px;
+        }
+        .navbar-toggle
+        {
+            margin-top: 23px;
+        }
+        th
+        {
+            text-align: center;
+        }
+        .inputform
+        {
+            padding-top: 12px;
+        }
+    </style>
 </head>
 <!-- //Head -->
 <!-- Body -->
 <body>
-<center>Welcome! <span>您已登录系统，欢迎您：{{ request.session.username }}</span></center>
-<a class="btn btn-info" href="/logout">注销登录</a>
-<a class="btn btn-warning" href="/updatePwd">修改密码</a>
-{% csrf_token %}
-<a class="btn btn-success" style="height: 35px;line-height: 35px;" href="javascript:;"><input id="filename" name="video" style="opacity: 0;width: 80px;height: 30px;padding: 0px;" onchange="upload_video(this)" type="file" class="file-upload" name="filename" value=""><span style="position: relative;top:-35px;">添加图片</span></a>
-<br/>
-<br/>
-<form active="/home" method="post">
-开始时间<input value="{{ starttime }}" id="starttime" name="starttime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
-结束时间<input value="{{ endtime }}" id="endtime" name="endtime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
-<input type="submit" value="搜索">
-</form>
-<table class="table">
-<caption>图片列表展示</caption>
-<thead>
-<tr>
-<th>序号</th>
-<th>文件名</th>
-<th>时间</th>
-</tr>
-</thead>
-<tbody>
-{% for image in imageArr %}
-<tr>
-<td>{{ image.id }}</td>
-    <td><a href="index?filename={{ image.filename }}">{{ image.filename }}</a></td>
-<td>{{ image.addtime|date:'Y-m-d H:i:s' }}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <h1 class="navbar-brand">Welcome: <small>{{ request.session.username }}</small></h1>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right">
+                    <a class="btn btn-info" href="/logout">注销登录</a>
+                    <a class="btn btn-warning" href="/updatePwd">修改密码</a>
+                    {% csrf_token %}
+                    <a class="btn btn-success" style="width: 82px;height: 33.73px;line-height: 33.73px;" href="javascript:;" onclick="document.getElementById('filename').click()">
+                        <input id="filename" name="video" style="opacity: 0;width: 70px;height: 30px;padding: 0px;visibility: hidden;" onchange="upload_video(this)" type="file" class="file-upload" value="">
+                        <span style="position: relative;top:-36.5px;">添加图片</span>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <br/><br/><br/><br/><br/><br/><br/><br/>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12">
+                <form class="input-group" active="/home" method="post">
+                    <span class="input-group-addon">开始时间</span>
+                    <input class="form-control" value="{{ starttime }}" id="starttime" name="starttime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                    <span class="input-group-addon">结束时间</span>
+                    <input class="form-control" value="{{ endtime }}" id="endtime" name="endtime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                    <span class="input-group-btn">
+                        <input class="btn btn-success" type="submit" value="搜索">
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <br/><br/><br/>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <table class="table table-striped">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h2>图片列表显示 <small>Pictures display</small></h2>
+                        </div>
+                    </div>
+                    <br/>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>文件名</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for image in imageArr %}
+                        <tr>
+                            <td>{{ image.id }}</td>
+                            <td>
+                                <a href="index?filename={{ image.filename }}">{{ image.filename }}</a>
+                            </td>
+                            <td>{{ image.addtime|date:'Y-m-d H:i:s' }}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger" onclick="delete_file('{{ image.filename }}')">删除</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <script src="{% static 'bootstrap/jquery/jquery-3.2.1.min.js' %}"></script>
-<script>
-    function upload_video() {
-        var fileName = $('#filename').val().split('\\');
-		var fileSize =  document.getElementById('filename').files[0]; //获得文件大小；
-		fileName2 = fileName[fileName.length-1]; // 获得文件名
-		filePath = $('#filename').val().toLowerCase().split(".");
-		fileType =  filePath[filePath.length - 1];
-		var str = 'nii';
-		if(str.indexOf(fileType) == -1){
-			alert('文件支持nii格式！')
-		}else if(fileSize.size>50485760){
-			alert('视频大小不超过50M！')
-		}
-		var csrf = $('#csrf').val();
-		var formData = new FormData();
-		formData.append('filename', fileSize);
-		formData.append('csrfmiddlewaretoken', csrf);
-        $.ajax({
-			url: "/uploadfile",
-			data: formData,
-			type: "Post",
-			dataType: "json",
-			cache: false,//上传文件无需缓存
-			processData: false,//用于对data参数进行序列化处理 这里必须false
-			contentType: false, //必须
-			success: function (result) {
-				if(result == 1){
-				    alert('上传成功')
-                    location.reload();
-				}else if(result == 2){
-				    alert('文件已存在')
-                }else{
-				    alert('上传失败')
-				}
-			}
-		})
-
-    }
-
-</script>
-
+    <script>
+        function upload_video()
+        {
+            var fileName = $('#filename').val().split('\\');
+            var fileSize = document.getElementById('filename').files[0]; //获得文件大小；
+            fileName2 = fileName[fileName.length - 1]; // 获得文件名
+            filePath = $('#filename').val().toLowerCase().split(".");
+            fileType = filePath[filePath.length - 1];
+            var str = 'nii';
+            if (str.indexOf(fileType) == -1)
+            {
+                alert('文件支持nii格式！')
+            }
+            else if (fileSize.size > 50485760)
+            {
+                alert('视频大小不超过50M！')
+            }
+            else
+            {
+                var csrf = $('#csrf').val();
+                var formData = new FormData();
+                formData.append('filename', fileSize);
+                formData.append('csrfmiddlewaretoken', csrf);
+                $.ajax
+                ({
+                    url: "/uploadfile",
+                    data: formData,
+                    type: "Post",
+                    dataType: "json",
+                    cache: false,//上传文件无需缓存
+                    processData: false,//用于对data参数进行序列化处理 这里必须false
+                    contentType: false, //必须
+                    success: function (result)
+                    {
+                        if (result == 1)
+                        {
+                            alert('上传成功')
+                            location.reload();
+                        }
+                        else if (result == 2)
+                        {
+                            alert('文件已存在')
+                        }
+                        else
+                        {
+                            alert('上传失败')
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+    <script>
+        function delete_file(del_filename)
+        {
+            var selectdel = confirm("您选择删除的文件名为：" + del_filename + "，是否确定删除？");
+            if (selectdel == true){
+                var data = {del_filename:del_filename}
+                $.ajax({
+                    url: "/delete_file",
+                    data: data,
+                    type: "POST",
+                 success: function (result) {
+                    if(result == 1){
+                        location.reload();
+                    }else if(result == 3){
+                        alert('原文件不存在');
+                    }else{
+                        alert('删除失败');
+                    }
+                }
+                })
+            }
+        }
+    </script>
 </body>
 </html>

@@ -27,12 +27,12 @@ html, body, div{
 .home .left {
     /*border-top: 4px solid white;*/
     /*border-left: 4px solid white;*/
-    width: 17%;
+    width: 25%;
     height: 100%;
 }
 
 .home .middle {
-    width: 58%;
+    width: 43%;
     /*border-top: 4px solid white;*/
     /*margin-left: 20px;*/
     border-right: 4px solid white;
@@ -40,7 +40,7 @@ html, body, div{
 }
 
 .home .right {
-    width: 23%;
+    width: 30%;
     height: 100%;
     border-right: 4px solid white;
     /*border-left: 4px solid white;*/
@@ -84,8 +84,8 @@ html, body, div{
     position:  absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     /*margin-left: 10%;*/
 }
 
@@ -170,3 +170,4 @@ ul li{
 .login .formwidth{
     width: 30%;
 }
+

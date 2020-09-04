@@ -32,5 +32,7 @@ urlpatterns = [
     url(r'^load_nodules/$', img_proc.load_nodules, name='load_nodules'),
     url(r'^upload/$', upload.upload, name='upload'),
     url(r'^login$', views.login, name='login'),
-    url(r'^print$', views.print_page, name='print')
+    url(r'^print$', views.print_page, name='print'),
+    url(r'^register$', views.register, name='register'),
+    url(r'^delete_file$', views.delete_file)
 ]

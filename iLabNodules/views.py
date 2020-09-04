@@ -7,9 +7,12 @@ from index import models
 import json
 import time
 import os
+import shutil
 import nibabel as nib
 import imageio
 import datetime
+from . import mainreport
+from threading import Thread
 @csrf_exempt
 def index(request):
     # 判断用户是否登录
@@ -63,6 +66,11 @@ def index(request):
 def login(request):
     # 登陆页面
     return render(request, 'login.html', {})
+
+def register(request):
+    # 注册页面
+    return render(request, 'register.html', {})
+
 @csrf_exempt
 def home(request):
     starttime = ''
@@ -137,15 +145,68 @@ def uploadfile(request):
                 if not os.path.exists(img_f_path):
                     os.mkdir(img_f_path)
                 (x, y, z) = img.shape
-                for i in range(z):
-                    silce = img_fdata[i, :, :]
-                    imageio.imwrite(os.path.join(img_f_path, '{}.png'.format(i)), silce)
+                # for i in range(z):
+                #     silce = img_fdata[i, :, :]
+                #     imageio.imwrite(os.path.join(img_f_path, '{}.png'.format(i)), silce)
+
+                img_file = './index/static/image/'
+                img_f_path = os.path.join(img_file, fname)
+                img_res_path = os.path.join('./index/static/img/', fname + '_result')
+                if not os.path.exists(img_f_path) and not os.path.exists(img_res_path):
+                    os.mkdir(img_f_path)
+                    os.mkdir(img_res_path)
+                    # 创建nii对应的图像的文件夹
+                    # if not os.path.exists(img_f_path):
+                    #     os.mkdir(img_f_path)  # 新建文件夹
+                    for i in range(3):
+                        os.mkdir(os.path.join(img_f_path, str(i)))
+                    # 开始转换为图像0
+                    (x, y, z) = img.shape
+                    for i in range(z):  # z是图像的序列
+                        silce = img_fdata[i, :, :]  # 选择哪个方向的切片都可以
+                        imageio.imwrite(os.path.join(img_f_path, '0/{}.png'.format(i)), silce)
+                        # 保存图像
+                    # 开始转换为图像1
+                    (x, y, z) = img.shape
+                    for i in range(z):  # z是图像的序列
+                        silce = img_fdata[:, i, :]  # 选择哪个方向的切片都可以
+                        imageio.imwrite(os.path.join(img_f_path, '1/{}.png'.format(i)), silce)
+                        # 保存图像
+                    # 开始转换为图像2
+                    (x, y, z) = img.shape
+                    for i in range(z):  # z是图像的序列
+                        silce = img_fdata[:, :, i]  # 选择哪个方向的切片都可以
+                        imageio.imwrite(os.path.join(img_f_path, '2/{}.png'.format(i)), silce)
+                        # 保存图像
             imagefile = models.ImageFile.objects.filter(filename=filename).first()
             if imagefile:
                 return HttpResponse(json.dumps(2))
             else:
                 models.ImageFile.objects.create(filename=filename, addtime=times).save()
+            thr = Thread(target=mainreport.main, args=(img_path, img_f_path, img_res_path))
+            thr.start()
         return HttpResponse(json.dumps(1))
+@csrf_exempt
+def delete_file(request):
+    if request.method == 'POST':
+        filename = request.POST.get('del_filename')
+        addressname = request.POST.get('del_filename')
+        filename = filename+'.nii'
+        imagefile2 = models.ImageFile.objects.filter(filename=filename).first()
+        if imagefile2:
+            models.ImageFile.objects.filter(filename=filename).delete()
+            imagefile = models.ImageFile.objects.filter(filename=filename).first()
+            if imagefile:
+                return HttpResponse(json.dumps(2))
+            else:
+                shutil.rmtree('./index/static/img/'+addressname)
+                shutil.rmtree('./index/static/img/' + addressname+'_result')
+                os.remove('./index/static/img/' + addressname+'.nii')
+                shutil.rmtree('./index/static/image/' + addressname)
+                return HttpResponse(json.dumps(1))
+        else:
+            return HttpResponse(json.dumps(3))
+
 def print_page1(request):
     '''
         报告打印页面
@@ -182,65 +243,62 @@ def print_page(request):
         报告打印页面
     '''
     data = request.GET["data"]
-    context = {}
+    filename = data
+    file1 = "image/" + filename + "/30.png"
+    file2 = "image/" + filename + "/45.png"
+    file3 = "image/" + filename + "/50.png"
+    context = {'data': [], 'purl': []}
 
-    if data == 'sub_001_brain_FLIRT':
-        # 脑数据在这里定义：
-        context = {'data': [
-            {"name": "颅内总体积", "absolute": 1243.444, "relative": 100, "percent": 9},
-            {"name": "海马区", "absolute": 4.678, "relative": 0.378, "percent": 11},
-            {"name": "杏仁核", "absolute": 2.169, "relative": 0.181, "percent": 1}
-        ],
-            "purl": [r"image\sub_003_brain_FLIRT\0\25.png",
-                     r"image\sub_003_brain_FLIRT\1\25.png",
-                     r"image\sub_003_brain_FLIRT\2\25.png"
-                     ]
-        }
-    if data == 'sub_002_brain_FLIRT':
-        # 脑数据在这里定义：
-        context = {'data': [
-            {"name": "颅内总体积", "absolute": 1246.532, "relative": 100, "percent": 9},
-            {"name": "海马区", "absolute": 4.386, "relative": 0.379, "percent": 10},
-            {"name": "杏仁核", "absolute": 2.167, "relative": 0.163, "percent": 0}
-        ],
-            "purl": [r"image\sub_003_brain_FLIRT\0\25.png",
-                     r"image\sub_003_brain_FLIRT\1\25.png",
-                     r"image\sub_003_brain_FLIRT\2\25.png"
-                     ]
-        }
-    if data == 'sub_003_brain_FLIRT':
-        # 脑数据在这里定义：
-        context = {'data': [
-            {"name": "颅内总体积", "absolute": 1243.542, "relative": 100, "percent": 9},
-            {"name": "海马区", "absolute": 4.678, "relative": 0.376, "percent": 11},
-            {"name": "杏仁核", "absolute": 2.163, "relative": 0.175, "percent": 0}
-        ],
-            "purl": [r"image\sub_003_brain_FLIRT\0\25.png",
-                     r"image\sub_003_brain_FLIRT\1\25.png",
-                     r"image\sub_003_brain_FLIRT\2\25.png"
-                     ]
-        }
-    if data == 'sub_004_brain_FLIRT':
-        context = {'data': [
-            {"name": "颅内总体积", "absolute": 1239.582, "relative": 100, "percent": 8},
-            {"name": "海马区", "absolute": 5.834, "relative": 0.386, "percent": 10},
-            {"name": "杏仁核", "absolute": 2.162, "relative": 0.174, "percent": 0}
-        ],
-            "purl": [r"image\sub_004_brain_FLIRT\0\25.png",
-                     r"image\sub_004_brain_FLIRT\1\25.png",
-                     r"image\sub_004_brain_FLIRT\2\25.png"
-                     ]
-        }
-    if data == 'sub_005_brain_FLIRT':
-        context = {'data': [
-            {"name": "颅内总体积", "absolute": 1225.592, "relative": 100, "percent": 10},
-            {"name": "海马区", "absolute": 4.652, "relative": 0.388, "percent": 12},
-            {"name": "杏仁核", "absolute": 2.162, "relative": 0.174, "percent": 0}
+    try:
+        f = open('./index/static/img/' + filename + '_result' + '/V', 'r')
+        V = f.read()
+        f.close()
+        V = V.split('\n')
+        V = [float(V[0]), float(V[1]), float(V[2])]
+        V_sum = sum(V)
+        percent_p2 = V[0] / V_sum * 100
+        percent_p3 = V[1] / V_sum * 100
+        percent_p4 = V[2] / V_sum * 100
+    except:
+        context = {'data':[{"name": "数据正在加载中", "absolute": '请稍后刷新', "relative": '', "percent": ''}], 'purl': []}
+        return render(request, 'print.html', context)
 
-        ],
-            "purl": [r"image\sub_005_brain_FLIRT\0\25.png",
-                     r"image\sub_005_brain_FLIRT\1\25.png",
-                     r"image\sub_005_brain_FLIRT\2\25.png"
-                     ]
-        }
+    # 脑数据在这里定义：
+    context = {'data': [
+        {"name": "颅内总体积", "absolute": '%.3f' % V_sum, "relative": 100, "percent": 9},
+        {"name": "脑脊液", "absolute": '%.3f' % V[0], "relative": '%.1f' % percent_p2,
+         "percent": int((percent_p2 * 10 - int(percent_p2 * 10)) * 10)},
+        {"name": "灰质", "absolute": '%.3f' % V[1], "relative": '%.1f' % percent_p3,
+         "percent": int((percent_p3 * 10 - int(percent_p3 * 10)) * 10)},
+        {"name": "白质", "absolute": '%.3f' % V[2], "relative": '%.1f' % percent_p4,
+         "percent": int((percent_p4 * 10 - int(percent_p4 * 10)) * 10)}
+    ],
+        "purl": [file1, file2, file3]
+    }
+
     return render(request, 'print.html', context)
+    # eng = matlab.engine.start_matlab()
+    # result_V = eng.KFCM_S(data_src, nargout=3)
+    # CSF_V = result_V[0]
+    # GM_V = result_V[1]
+    # WM_V = result_V[2]
+    # whole_V = CSF_V + GM_V + WM_V
+    # whole_V =  float(format(whole_V, '.3f'))
+    # CSF_rela = CSF_V / whole_V * 100.00
+    # GM_rela = GM_V / whole_V * 100.00
+    # WM_rela = WM_V / whole_V *100.00
+    # CSF_rela = format(CSF_rela, '.3f')
+    # GM_rela = format(GM_rela, '.3f')
+    # WM_rela = format(WM_rela, '.3f')
+    # context = {'data': [
+    #     {"name": "颅内总体积", "absolute": whole_V, "relative": 100, "percent": 0},
+    #     {"name": "脑脊液", "absolute": CSF_V, "relative": CSF_rela, "percent": 0},
+    #     {"name": "脑灰质", "absolute": GM_V, "relative": GM_rela, "percent": 0},
+    #     {"name": "脑白质", "absolute": WM_V, "relative": WM_rela, "percent": 0}
+    # ],
+    #     "purl": [img0_src,
+    #              img1_src,
+    #              img2_src
+    #              ]
+    # }
+

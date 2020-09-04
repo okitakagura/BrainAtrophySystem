@@ -1,13 +1,13 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>检测报告</title>
-    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static "bootstrap/css/bootstrap.css" %}" rel="stylesheet">
     <style>
-        .container {
+        .container
+        {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -15,20 +15,116 @@
 
         .person-info,
         .brain-img,
-        .brain-info {
+        .brain-info
+        {
             width: 960px;
         }
 
-        .brain-img {
+        .brain-img
+        {
             margin-bottom: 20px;
         }
+
+        .page-header
+        {
+            margin-top: 75px;
+        }
+
+        .col-lg-12 > span
+        {
+            float: left;
+            font-size: 40px;
+            font-weight: 700;
+            margin-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .col-lg-12 > button
+        {
+            width: 100px;
+            height: 28px;
+            float: right;
+            margin-top: 25px;
+            font-size: 10px;
+        }
+
+        .hid-form
+        {
+            visibility: hidden;
+            height: 40px;
+        }
+
+        th
+        {
+            text-align: center;
+        }
+
+        td
+        {
+            text-align: center;
+        }
+
     </style>
+    <script src="../static/bootstrap/jquery/jquery-3.2.1.min.js"></script>
+    <script src="../static/js/html2canvas.min.js"></script>
+    <script src="../static/js/jspdf.debug.js"></script>
+    <script>
+        $(document).ready(function()
+        {
+            $("button").click(function()
+            {
+                var selectdel = confirm("是否下载该检测报告？");
+                if (selectdel == true) {
+                    $(".nav-bar").addClass("hid-form");
+                    html2canvas(document.body).then(function (canvas) {
+                        var contentWidth = canvas.width;
+                        var contentHeight = canvas.height;
+                        /*var pageHeight = contentWidth / 592.28 * 841.89;
+                        var leftHeight = contentHeight;
+                        var position = 0;*/
+                        var imgWidth = 595.28;
+                        var imgHeight = 592.28 / contentWidth * contentHeight;
+                        var pageData = canvas.toDataURL();
+                        var pdf = new jsPDF('', 'pt', 'a4');
+                        pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                        /*if (leftHeight < pageHeight)
+                        {
+                            pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight );
+                        }
+                        else
+                        {
+                            while(leftHeight > 0)
+                            {
+                                pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight)
+                                leftHeight -= pageHeight;
+                                position -= 841.89;
+                                if(leftHeight > 0) pdf.addPage();
+                            }
+                        }*/
+                        pdf.save('检测报告.pdf')
+                        /*var link = $("<a></a>");
+                        link.attr("href", dataUrl);
+                        link.attr("download", "检测报告");
+                        link.get(0).click();*/
+                    });
+                    $(".nav-bar").removeClass("hid-form");
+                }
+            });
+        });
+    </script>
 </head>
 <body>
+<div class="container nav-bar">
+    <div class="col-lg-12">
+        <button class="btn btn-success">下载检测报告</button>
+        <div class="page-header"></div>
+    </div>
+</div>
+
 <div class="container">
     <h1>脑影像分析报告</h1>
     <div class="person-info">
-        <table class="table table-hover">
+        <table class="table table-hover table-striped">
             <thead bgcolor="#ffba27">
             <tr>
                 <th colspan="6" scope="col">个人信息</th>
@@ -65,6 +161,7 @@
             </tr>
             </thead>
         </table>
+        <br>
         <div class="img bg-dark">
             <div class="row">
                 {% for img in purl %}
@@ -77,7 +174,7 @@
     </div>
 
     <div class="brain-info">
-        <table class="table table-hover">
+        <table class="table table-hover table-striped">
             <thead bgcolor="#ffba27">
             <tr>
                 <th colspan="6" scope="col">整体脑容积</th>
@@ -100,13 +197,10 @@
                 <td>{{ item.percent }}</td>
             </tr>
             {% endfor %}
-
             </tbody>
         </table>
         <p>(1)百分位值小可能显示脑萎缩</p>
     </div>
-
-
 </div>
 </body>
 </html>

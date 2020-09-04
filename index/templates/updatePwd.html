@@ -12,46 +12,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.css" %}" type="text/css" media="all">
+    <style type="text/css">
+        .btnform
+        {
+            text-align: center;
+        }
+        a
+        {
+            width: 60px;
+        }
+    </style>
 </head>
 <!-- //Head -->
 
 <!-- Body -->
 <body>
-<center>Welcome! <span>您已登录系统，欢迎您：{{ request.session.username }}</span></center>
-<div class="row">
-    <div class="col-lg-12 col-xlg-9 col-md-7">
-        <div class="card">
-            <div class="card-block">
-                <form method="post" class="form-horizontal form-material">
-                    <div class="form-group">
-                        <label class="col-md-12">旧密码</label>
-                        <div class="col-md-12">
-                            <input id="password1" type="password" placeholder="" value="" class="form-control form-control-line">
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <h1 class="navbar-brand">修改密码： <small>{{ request.session.username }}</small></h1>
+        </div>
+    </div>
+</nav>
+<br/><br/><br/><br/><br/><br/><br/><br/>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+            <div class="card">
+                <div class="card-block">
+                    <form method="post" class="form-horizontal form-material">
+                        <div class="form-group">
+                            <label class="col-md-12">旧密码</label>
+                            <div class="col-md-12">
+                                <input id="password1" type="password" placeholder="" value="" class="form-control form-control-line">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-12">新密码</label>
-                        <div class="col-md-12">
-                            <input id="password2" type="password" placeholder="" value="" class="form-control form-control-line">
+                        <div class="form-group">
+                            <label class="col-md-12">新密码</label>
+                            <div class="col-md-12">
+                                <input id="password2" type="password" placeholder="" value="" class="form-control form-control-line">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-12">确认密码</label>
-                        <div class="col-md-12">
-                            <input id="password3" type="password" placeholder="" value="" class="form-control form-control-line">
+                        <div class="form-group">
+                            <label class="col-md-12">确认密码</label>
+                            <div class="col-md-12">
+                                <input id="password3" type="password" placeholder="" value="" class="form-control form-control-line">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-sm-12">
-                            <a id="update_user" href="javascript:;" class="btn btn-success">提交</a>
-                            <a href="/home" class="btn btn-default">返回</a>
+                        <br/>
+                        <div class="form-group">
+                            <div class="btnform">
+                                <a id="update_user" href="javascript:;" class="btn btn-success">提交</a>
+                                &nbsp; &nbsp;
+                                <a href="/home" class="btn btn-default">返回</a>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <script src="{% static 'bootstrap/jquery/jquery-3.2.1.min.js' %}"></script>
 <script>

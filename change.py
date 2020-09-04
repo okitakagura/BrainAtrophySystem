@@ -18,6 +18,8 @@ def nii_to_image():
         # 创建nii对应的图像的文件夹
         if not os.path.exists(img_f_path):
             os.mkdir(img_f_path)  # 新建文件夹
+        else:
+            continue
         for i in range(3):
             os.mkdir(os.path.join(img_f_path, str(i)))
 
